@@ -10,5 +10,6 @@ handler.command = /^tagall$/i
 
 handler.admin = true
 handler.group = true
+handle.owner =true
 
 module.exports = handler
