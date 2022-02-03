@@ -93,6 +93,8 @@ let link = supp('div').find('a').attr('href')
 hasil.push({ thumb, judul, quality, tipe, size, output, link})
 return hasil[0]
 }
+handler.cammands = ['ytv']
+handler.owner = false
+handler.mods = false
 
-
-module.exports = { yta, ytv}
+module.exports = handler
