@@ -1,55 +1,100 @@
-let limit = 30
-let yts = require('yt-search')
-let fetch = require('node-fetch')
-const { servers, yta, ytv } = require('../lib/y2mate')
-let handler = async (m, { conn, command, text, isPrems, isOwner }) => {
-  if (!text) throw 'Cari apa?'
-  let chat = global.db.data.chats[m.chat]
-  let results = await yts(text)
-  let vid = results.all.find(video => video.seconds < 3600)
-  if (!vid) throw 'Video/Audio Tidak ditemukan'
-  let isVideo = /2$/.test(command)
-  let yt = false
-  let usedServer = servers[0]
-  for (let i in servers) {
-    let server = servers[i]
-    try {
-      yt = await (isVideo ? ytv : yta)(vid.url, server)
-      usedServer = server
-      break
-    } catch (e) {
-      m.reply(`Server ${server} error!${servers.length >= i + 1 ? '' : '\nmencoba server lain...'}`)
-    }
-  }
-  if (yt === false) throw 'Semua server tidak bisa :/'
-  let { dl_link, thumb, title, filesize, filesizeF } = yt
-  let isLimit = (isPrems || isOwner ? 99 : limit) * 1024 < filesize
-  conn.sendFile(m.chat, thumb, 'thumbnail.jpg', `
-*Title:* ${title}
-*Filesize:* ${filesizeF}
-*Source:* ${vid.url}
-*${isLimit ? 'Pakai ': ''}Link:* ${dl_link}
-*Server y2mate:* ${usedServer}
-`.trim(), m)
-let _thumb = {}
-try { if (isVideo) _thumb = { thumbnail: await (await fetch(thumb)).buffer() } }
-catch (e) { }
-if (!isLimit) conn.sendFile(m.chat, dl_link, title + '.mp' + (3 + /2$/.test(command)), `
-*Title:* ${title}
-*Filesize:* ${filesizeF}
-*Source:* ${vid.url}
-*Server y2mate:* ${usedServer}
-`.trim(), m, false,  {
-  ..._thumb,
-  asDocument: chat.useDocument
-})
+const fs = require('fs')
+const path = require('path')
+const { spawn } = require('child_process')
+
+/**
+ * Convert Audio to Playable WhatsApp Audio
+ * @param {Buffer} buffer Audio Buffer
+ * @param {String} ext File Extension 
+ */
+function toAudio(buffer, ext) {
+  return new Promise((resolve, reject) => {
+    let tmp = path.join(__dirname, '../tmp', + new Date  + '.' + ext)
+    let out = tmp + '.mp3'
+    fs.writeFileSync(tmp, buffer)
+    spawn('ffmpeg', [
+      '-y',
+      '-i',tmp,
+      '-vn',
+      '-ac', '2',
+      '-b:a','128k',
+      '-ar','44100',
+      '-f', 'mp3',
+      out
+    ])
+    .on('error', reject)
+    .on('error', () => fs.unlinkSync(tmp))
+    .on('close', () => {
+      fs.unlinkSync(tmp)
+      resolve(fs.readFileSync(out))
+      if (fs.existsSync(out)) fs.unlinkSync(out)
+    })
+  })
 }
-handler.help = ['play', 'play2'].map(v => v + ' <pencarian>')
-handler.tags = ['downloader']
-handler.command = /^play2?$/i
 
-handler.exp = 0
-handler.limit = true
+/**
+ * Convert Audio to Playable WhatsApp PTT
+ * @param {Buffer} buffer Audio Buffer
+ * @param {String} ext File Extension 
+ */
+function toPTT(buffer, ext) {
+  return new Promise((resolve, reject) => {
+    let tmp = path.join(__dirname, '../tmp', + new Date + '.' + ext)
+    let out = tmp + '.opus'
+    fs.writeFileSync(tmp, buffer)
+    spawn('ffmpeg', [
+      '-y',
+      '-i',tmp,
+      '-vn',
+      '-c:a','libopus',
+      '-b:a','128k',
+      '-vbr','on',
+      '-compression_level','10',
+      out,
+    ])
+    .on('error', reject)
+    .on('error', () => fs.unlinkSync(tmp))
+    .on('close', () => {
+      fs.unlinkSync(tmp)
+      resolve(fs.readFileSync(out))
+      if (fs.existsSync(out)) fs.unlinkSync(out)
+    })
+  })
+}
 
-module.exports = handler
+/**
+ * Convert Audio to Playable WhatsApp Video
+ * @param {Buffer} buffer Video Buffer
+ * @param {String} ext File Extension 
+ */
+function toVideo(buffer, ext) {
+  return new Promise((resolve, reject) => {
+    let tmp = path.join(__dirname, '../tmp', + new Date + '.' + ext)
+    let out = tmp + '.mp4'
+    fs.writeFileSync(tmp, buffer)
+    spawn('ffmpeg', [
+      '-y',
+      '-i', tmp,
+      '-c:v','libx264',
+      '-c:a','aac',
+      '-ab','128k',
+      '-ar','44100',
+      '-crf', '32',
+      '-preset', 'slow',
+      out
+    ])
+    .on('error', reject)
+    .on('error', () => fs.unlinkSync(tmp))
+    .on('close', () => {
+      fs.unlinkSync(tmp)
+      resolve(fs.readFileSync(out))
+      if (fs.existsSync(out)) fs.unlinkSync(out)
+    })
+  })
+}
 
+module.exports = {
+  toAudio,
+  toPTT,
+  toVideo
+}
