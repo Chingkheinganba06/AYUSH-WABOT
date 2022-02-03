@@ -1,43 +1,98 @@
-let limit = 30
-let fetch = require('node-fetch')
-const { servers, ytv } = require('../lib/y2mate')
-let handler = async (m, { conn, args, isPrems, isOwner }) => {
-  if (!args || !args[0]) throw 'Uhm... urlnya mana?'
-  let chat = global.db.data.chats[m.chat]
-  let server = (args[1] || servers[0]).toLowerCase()
-  let { dl_link, thumb, title, filesize, filesizeF} = await ytv(args[0], servers.includes(server) ? server : servers[0])
-  let isLimit = (isPrems || isOwner ? 99 : limit) * 1024 < filesize
-  conn.sendFile(m.chat, thumb, 'thumbnail.jpg', `
-*Title:* ${title}
-*Filesize:* ${filesizeF}
-*${isLimit ? 'Pakai ': ''}Link:* ${dl_link}
-`.trim(), m)
-  let _thumb = {}
-  try { _thumb = { thumbnail: await (await fetch(thumb)).buffer() } }
-  catch (e) { }
-  if (!isLimit) conn.sendFile(m.chat, dl_link, title + '.mp4', `
-*Title:* ${title}
-*Filesize:* ${filesizeF}
-`.trim(), m, false, {
-  ..._thumb,
-  asDocument: chat.useDocument
-})
+const fetch = require('node-fetch') 
+const cheerio = require('cheerio')
+
+const ytv = async (yutub) => {
+function post(url, formdata) {
+    return fetch(url, {
+        method: 'POST',
+        headers: {
+            accept: "*/*",
+            'accept-language': "en-US,en;q=0.9",
+            'content-type': "application/x-www-form-urlencoded; charset=UTF-8"
+        },
+        body: new URLSearchParams(Object.entries(formdata))
+    })
 }
-handler.help = ['mp4','v',''].map(v => 'yt' + v + ` <url> [server: ${servers.join(', ')}]`)
-handler.tags = ['downloader']
-handler.command = /^yt(v|mp4)?$/i
-handler.owner = false
-handler.mods = false
-handler.premium = false
-handler.group = false
-handler.private = false
+const ytIdRegex = /(?:http(?:s|):\/\/|)(?:(?:www\.|)youtube(?:\-nocookie|)\.com\/(?:watch\?.*(?:|\&)v=|embed\/|v\/)|youtu\.be\/)([-_0-9A-Za-z]{11})/
+let ytId = ytIdRegex.exec(yutub)
+url = 'https://youtu.be/' + ytId[1]
+let res = await post(`https://www.y2mate.com/mates/en68/analyze/ajax`, {
+    url,
+    q_auto: 0,
+    ajax: 1
+  })
+const mela = await res.json()
+const $ = cheerio.load(mela.result)
+const hasil = []
+let thumb = $('div').find('.thumbnail.cover > a > img').attr('src')
+let judul = $('div').find('.thumbnail.cover > div > b').text()
+let quality = $('div').find('#mp4 > table > tbody > tr:nth-child(4) > td:nth-child(3) > a').attr('data-fquality')
+let tipe = $('div').find('#mp4 > table > tbody > tr:nth-child(3) > td:nth-child(3) > a').attr('data-ftype')
+let output = `${judul}.` + tipe
+let size = $('div').find('#mp4 > table > tbody > tr:nth-child(2) > td:nth-child(2)').text()
+let id = /var k__id = "(.*?)"/.exec(mela.result)[1]
+let res2 = await post(`https://www.y2mate.com/mates/en68/convert`, {
+    type: 'youtube',
+    _id: id,
+    v_id: ytId[1],
+    ajax: '1',
+    token: '',
+    ftype: tipe,
+    fquality: quality
+  })
+const meme = await res2.json()
+const supp = cheerio.load(meme.result)
+let link = supp('div').find('a').attr('href')
+hasil.push({ thumb, judul, quality, tipe, size, output, link})
+return hasil[0]
+}
 
-handler.admin = false
-handler.botAdmin = false
 
-handler.fail = null
-handler.exp = 0
-handler.limit = true
+const yta= async (yutub) => {
+function post(url, formdata) {
+    return fetch(url, {
+        method: 'POST',
+        headers: {
+            accept: "*/*",
+            'accept-language': "en-US,en;q=0.9",
+            'content-type': "application/x-www-form-urlencoded; charset=UTF-8"
+        },
+        body: new URLSearchParams(Object.entries(formdata))
+    })
+}
+const ytIdRegex = /(?:http(?:s|):\/\/|)(?:(?:www\.|)youtube(?:\-nocookie|)\.com\/(?:watch\?.*(?:|\&)v=|embed\/|v\/)|youtu\.be\/)([-_0-9A-Za-z]{11})/
+let ytId = ytIdRegex.exec(yutub)
+url = 'https://youtu.be/' + ytId[1]
+let res = await post(`https://www.y2mate.com/mates/en68/analyze/ajax`, {
+    url,
+    q_auto: 0,
+    ajax: 1
+  })
+const mela = await res.json()
+const $ = cheerio.load(mela.result)
+const hasil = []
+let thumb = $('div').find('.thumbnail.cover > a > img').attr('src')
+let judul = $('div').find('.thumbnail.cover > div > b').text()
+let size = $('div').find('#mp3 > table > tbody > tr > td:nth-child(2)').text()
+let tipe = $('div').find('#mp3 > table > tbody > tr > td:nth-child(3) > a').attr('data-ftype')
+let output = `${judul}.` + tipe
+let quality = $('div').find('#mp3 > table > tbody > tr > td:nth-child(3) > a').attr('data-fquality')
+let id = /var k__id = "(.*?)"/.exec(mela.result)[1]
+let res2 = await post(`https://www.y2mate.com/mates/en68/convert`, {
+    type: 'youtube',
+    _id: id,
+    v_id: ytId[1],
+    ajax: '1',
+    token: '',
+    ftype: tipe,
+    fquality: quality
+  })
+const meme = await res2.json()
+const supp = cheerio.load(meme.result)
+let link = supp('div').find('a').attr('href')
+hasil.push({ thumb, judul, quality, tipe, size, output, link})
+return hasil[0]
+}
 
-module.exports = handler
 
+module.exports = { yta, ytv}
