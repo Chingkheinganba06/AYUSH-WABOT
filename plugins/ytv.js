@@ -94,8 +94,14 @@ let link = supp('div').find('a').attr('href')
 hasil.push({ thumb, judul, quality, tipe, size, output, link})
 return hasil[0]
 }
-handler.cammands = ['ytv']
+handler.help = ['mp4/ytv'].map(v => 'yt' + v + ` <url>`)
+handler.tags = ['downloader']
+handler.command = /^yt(v|mp4)?$/i
 handler.owner = false
 handler.mods = false
+handler.premium = false
+handler.group = false
+handler.private = false
+
 
 module.exports = handler
