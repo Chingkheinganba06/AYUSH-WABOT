@@ -1,3 +1,13 @@
+let limit = 30
+let fetch = require('node-fetch')
+const { servers, ytv } = require('../lib/y2mate')
+let handler = async (m, { conn, args, isPrems, isOwner }) => {
+  if (!args || !args[0]) throw 'Uhm... where is the url?'
+  let chat = global.db.data.chats[m.chat]
+  let server = (args[1] || servers[0]).toLowerCase()
+  let { dl_link, thumb, title, filesize, filesizeF} = await ytv(args[0], servers.includes(server) ? server : servers[0])
+  let isLimit = (isPrems || isOwner ? 99 : limit) * 1024 < filesize
+  conn.sendFile(m.chat, thumb, 'thumbnail.jpg', `
 const fetch = require('node-fetch') 
 const cheerio = require('cheerio')
 
@@ -24,7 +34,6 @@ let res = await post(`https://www.y2mate.com/mates/en68/analyze/ajax`, {
 const mela = await res.json()
 const $ = cheerio.load(mela.result)
 const hasil = []
-let handler = async (m, { conn, args, isPrems, isOwner }) => {
 let thumb = $('div').find('.thumbnail.cover > a > img').attr('src')
 let judul = $('div').find('.thumbnail.cover > div > b').text()
 let quality = $('div').find('#mp4 > table > tbody > tr:nth-child(4) > td:nth-child(3) > a').attr('data-fquality')
