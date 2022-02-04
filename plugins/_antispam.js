@@ -9,8 +9,7 @@ handler.all = async function (m) {
             if (this.spam[m.sender].count > 10) {
                 //global.db.data.users[m.sender].banned = true
                 m.reply('*Do not Spam!! Otherwise you will kicked*')
-           
-                await this.groupRemove(m.chat, [m.sender])
+        
                 if (isowner) return m.reply('*Hey sorry you\'re owner , you won\'t be kicked. haha..*')
             } 
             this.spam[m.sender].count = 10
