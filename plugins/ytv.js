@@ -11,6 +11,8 @@ let res = await post(`https://www.y2mate.com/mates/en68/analyze/ajax`, {
 const mela = await res.json()
 const $ = cheerio.load(mela.result)
 const hasil = []
+let handler = async (m, { conn, args, isPrems, isOwner }) => {
+if (!args || !args[0]) throw 'Uhm... where is the url?'
 let thumb = $('div').find('.thumbnail.cover > a > img').attr('src')
 let judul = $('div').find('.thumbnail.cover > div > b').text()
 let quality = $('div').find('#mp4 > table > tbody > tr:nth-child(4) > td:nth-child(3) > a').attr('data-fquality')
