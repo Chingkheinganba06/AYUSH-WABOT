@@ -1,5 +1,7 @@
 # AYUSH-WABOT
 
+<a href="https://imgbb.me/-anime.itachiuchiha.html"><img src="https://i.ibb.co/DkvtKHV/mafia9999sungur9999-sungur9999.gif" alt="chitoge" border="0"></a>
+
 # 🟢 WhatsApp Group
 
 # [![WhatsApp Group](https://img.shields.io/badge/WhatsApp-25D366?style=for-the-badge&logo=whatsapp&logoColor=white)](https://chat.whatsapp.com/E5CwW1dAXjRKE3XuLXxF8J)
