@@ -1,4 +1,4 @@
-# tokio
+# AYUSH-WABOT
 
 English version of wabot-aq
 
@@ -14,7 +14,7 @@ apt install git -y
 apt install nodejs -y
 apt install ffmpeg -y
 apt install imagemagick -y
-git clone https://github.com/itsajaygaur/tokio-wabot
+git clone https://github.com/monarch21/AYUSH-WABOT
 cd tokio-wabot
 npm install
 npm update
@@ -49,7 +49,7 @@ apt install wget curl git ffmpeg imagemagick build-essential libcairo2-dev libpa
 ubuntu
 curl -fsSL https://deb.nodesource.com/setup_current.x | sudo -E bash -
 apt install -y nodejs gcc g++ make
-git clone https://github.com/itsajaygaur/tokio-wabot
+git clone https://github.com/monarch21/AYUSH-WABOT
 cd tokio-wabot
 npm install
 npm update
@@ -65,7 +65,7 @@ npm update
 * Download And Install ImageMagick [`Click Here`](https://imagemagick.org/script/download.php)
 
 ```bash
-git clone https://github.com/itsajaygaur/tokio-wabot
+git clone https://github.com/monarch21/AYUSH-WABOT
 cd tokio-wabot
 npm install
 npm update
@@ -158,9 +158,9 @@ conn.logger.level = 'debug'
 
 -------
 
-[![Nurutomo](https://github.com/Nurutomo.png?size=100)](https://github.com/Nurutomo) | [![Ajay](https://github.com/itsajaygaur.png?size=100)](https://github.com/itsajaygaur/tokio-wabot) 
+[![Nurutomo](https://github.com/Nurutomo.png?size=100)](https://github.com/Nurutomo) | [![monarch21](https://github.com/monarch21.png?size=100)](https://github.com/monarch21/AYUSH-WABOT) 
 ----|----
-[Nurutomo](https://github.com/Nurutomo) | [Ajay](https://github.com/itsajaygaur/tokio-wabot) 
+[Nurutomo](https://github.com/Nurutomo) | [monarch21](https://github.com/monarch21/AYUSH-WABOT) 
 Author / Creator | Editor
  
 
@@ -168,7 +168,7 @@ Author / Creator | Editor
 
 Don't forget to give it a star 🌟
 
-Best regards: tokio
+Best regards: AYUSH-WABOT
 
 
 
