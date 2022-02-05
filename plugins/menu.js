@@ -43,13 +43,13 @@ const defaultMenu = {
 
 〽️ Prefix: *%p*
 📅 Date: *%week, %date*
-💠 Github: github.com/monarch21/tokio-wabot
+💠 Github: github.com/monarch21/AYUSH-WABOT
 
-👇🏻 All usable commands are listed below 
+ All usable commands are listed below 
 
 %readmore`.trimStart(),
   header: '        *━━❰･%category･❱━━*',
-  body: ' 🌠 %cmd %islimit %isPremium',
+  body: ' 😈 %cmd %islimit %isPremium',
   footer: ' ',
   after: `🌟 *Hope you're enjoying bot, have a great day* 
 `,
